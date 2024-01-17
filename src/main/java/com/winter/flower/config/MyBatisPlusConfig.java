@@ -6,14 +6,8 @@ import com.baomidou.mybatisplus.extension.plugins.inner.PaginationInnerIntercept
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
-/**
- * MyBatis Plus 配置
- *
- * @author https://github.com/liyupi
- */
 @Configuration
-@MapperScan("com.yupi.springbootinit.mapper")
+@MapperScan("com.winter.flower.mapper")
 public class MyBatisPlusConfig {
 
     /**

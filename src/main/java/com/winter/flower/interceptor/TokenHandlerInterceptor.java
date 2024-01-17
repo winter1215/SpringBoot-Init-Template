@@ -32,6 +32,7 @@ public class TokenHandlerInterceptor implements HandlerInterceptor {
     private final SecurityConfiguration securityConfiguration;
 
     @Override
+    @SuppressWarnings("unchecked")
     public boolean preHandle(@NotNull HttpServletRequest request, @NotNull HttpServletResponse response, @NotNull Object handler) throws Exception {
         String token = request.getHeader("token");
         String jwtKey = securityConfiguration.getJwtKey();
@@ -47,7 +48,8 @@ public class TokenHandlerInterceptor implements HandlerInterceptor {
     }
 
     @Override
-    public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) throws Exception {
+    public void afterCompletion(@NotNull HttpServletRequest request, @NotNull HttpServletResponse response, @NotNull Object handler, Exception ex) throws Exception {
+        // 清除 ThreadLocal, 防止内存泄露
         RequestContext.remove();
     }
 }
