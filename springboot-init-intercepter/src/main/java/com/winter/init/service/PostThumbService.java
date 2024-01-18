@@ -1,5 +1,6 @@
 package com.winter.init.service;
 
+import com.winter.init.model.entity.LoginUser;
 import com.winter.init.model.entity.PostThumb;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.winter.init.model.entity.User;
@@ -17,7 +18,7 @@ public interface PostThumbService extends IService<PostThumb> {
      * @param loginUser
      * @return
      */
-    int doPostThumb(long postId, User loginUser);
+    int doPostThumb(long postId, LoginUser loginUser);
 
     /**
      * 帖子点赞（内部服务）

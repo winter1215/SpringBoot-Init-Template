@@ -9,6 +9,7 @@ import com.winter.init.config.exception.ThrowUtils;
 import com.winter.init.model.dto.post.PostQueryRequest;
 import com.winter.init.model.dto.postfavour.PostFavourAddRequest;
 import com.winter.init.model.dto.postfavour.PostFavourQueryRequest;
+import com.winter.init.model.entity.LoginUser;
 import com.winter.init.model.entity.Post;
 import com.winter.init.model.entity.User;
 import com.winter.init.model.vo.PostVO;
@@ -54,7 +55,7 @@ public class PostFavourController {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
         // 登录才能操作
-        final User loginUser = userService.getLoginUser();
+        final LoginUser loginUser = userService.getLoginUser();
         long postId = postFavourAddRequest.getPostId();
         int result = postFavourService.doPostFavour(postId, loginUser);
         return ResultUtils.success(result);
@@ -72,7 +73,7 @@ public class PostFavourController {
         if (postQueryRequest == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
-        User loginUser = userService.getLoginUser();
+        LoginUser loginUser = userService.getLoginUser();
         long current = postQueryRequest.getCurrent();
         long size = postQueryRequest.getPageSize();
         // 限制爬虫

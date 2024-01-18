@@ -15,6 +15,7 @@ import com.winter.init.model.dto.user.UserQueryRequest;
 import com.winter.init.model.dto.user.UserRegisterRequest;
 import com.winter.init.model.dto.user.UserUpdateMyRequest;
 import com.winter.init.model.dto.user.UserUpdateRequest;
+import com.winter.init.model.entity.LoginUser;
 import com.winter.init.model.entity.User;
 import com.winter.init.model.vo.LoginUserVO;
 import com.winter.init.model.vo.UserVO;
@@ -84,19 +85,6 @@ public class UserController {
         }
         LoginUserVO loginUserVO = userService.userLogin(userAccount, userPassword, request);
         return ResultUtils.success(loginUserVO);
-    }
-
-
-    /**
-     * 获取当前登录用户
-     *
-     * @param request
-     * @return
-     */
-    @GetMapping("/get/login")
-    public BaseResponse<LoginUserVO> getLoginUser(HttpServletRequest request) {
-        User user = userService.getLoginUser();
-        return ResultUtils.success(userService.getLoginUserVO(user));
     }
 
     /**
@@ -247,7 +235,7 @@ public class UserController {
         if (userUpdateMyRequest == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
-        User loginUser = userService.getLoginUser();
+        LoginUser loginUser = userService.getLoginUser();
         User user = new User();
         BeanUtils.copyProperties(userUpdateMyRequest, user);
         user.setId(loginUser.getId());

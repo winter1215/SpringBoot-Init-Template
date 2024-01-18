@@ -1,6 +1,7 @@
 package com.winter.init.config.security;
 
 import cn.hutool.core.bean.BeanUtil;
+import com.winter.init.model.entity.LoginUser;
 import com.winter.init.model.vo.LoginUserVO;
 
 import java.util.Map;
@@ -11,23 +12,22 @@ import java.util.Map;
  * @create 2024-01-15 17:39
  */
 public class RequestContext {
-    private static final ThreadLocal<Map<String, Object>> REQUEST_DATA = new ThreadLocal<>();
+    private static final ThreadLocal<LoginUser> REQUEST_DATA = new ThreadLocal<>();
 
     public static Long getUserId() {
-        Map<String, Object> data = REQUEST_DATA.get();
-        if (null == data) {
+        LoginUser loginUser = REQUEST_DATA.get();
+        if (null == loginUser) {
             return null;
         }
-        return (Long) data.get("userId");
+        return loginUser.getId();
     }
 
-    public static LoginUserVO getLoginUser() {
-        Map<String, Object> requestData = REQUEST_DATA.get();
-        return BeanUtil.toBean(requestData, LoginUserVO.class);
+    public static LoginUser getLoginUser() {
+        return REQUEST_DATA.get();
     }
 
-    public static void setRequestData(Map<String, Object> requestData) {
-        REQUEST_DATA.set(requestData);
+    public static void setRequestData(LoginUser loginUser) {
+        REQUEST_DATA.set(loginUser);
     }
 
     public static void remove() {

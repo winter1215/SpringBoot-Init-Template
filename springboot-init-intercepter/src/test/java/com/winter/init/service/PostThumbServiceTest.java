@@ -1,5 +1,6 @@
 package com.winter.init.service;
 
+import com.winter.init.model.entity.LoginUser;
 import com.winter.init.model.entity.User;
 import javax.annotation.Resource;
 import org.junit.jupiter.api.Assertions;
@@ -17,7 +18,7 @@ class PostThumbServiceTest {
     @Resource
     private PostThumbService postThumbService;
 
-    private static final User loginUser = new User();
+    private static final LoginUser loginUser = new LoginUser();
 
     @BeforeAll
     static void setUp() {

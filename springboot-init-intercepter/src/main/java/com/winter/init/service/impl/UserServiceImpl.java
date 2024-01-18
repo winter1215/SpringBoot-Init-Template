@@ -13,6 +13,7 @@ import com.winter.init.constant.CommonConstant;
 import com.winter.init.config.exception.BusinessException;
 import com.winter.init.mapper.UserMapper;
 import com.winter.init.model.dto.user.UserQueryRequest;
+import com.winter.init.model.entity.LoginUser;
 import com.winter.init.model.entity.User;
 import com.winter.init.model.enums.UserRoleEnum;
 import com.winter.init.model.vo.LoginUserVO;
@@ -119,11 +120,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
      * 获取当前登录用户
      */
     @Override
-    public User getLoginUser() {
-        LoginUserVO loginUser = RequestContext.getLoginUser();
-        User user = new User();
-        BeanUtils.copyProperties(loginUser, user);
-        return user;
+    public LoginUser getLoginUser() {
+        LoginUser loginUser = RequestContext.getLoginUser();
+        return loginUser;
     }
 
     /**
@@ -132,13 +131,13 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     @Override
     public boolean isAdmin() {
         // 仅管理员可查询
-        LoginUserVO user = RequestContext.getLoginUser();
-        return user != null && UserRoleEnum.ADMIN.getValue().equals(user.getUserRole());
+        LoginUser user = RequestContext.getLoginUser();
+        return user != null && UserRoleEnum.ADMIN.getValue().equals(user.getRole());
     }
 
     @Override
-    public boolean isAdmin(User user) {
-        return user != null && UserRoleEnum.ADMIN.getValue().equals(user.getUserRole());
+    public boolean isAdmin(LoginUser user) {
+        return user != null && UserRoleEnum.ADMIN.getValue().equals(user.getRole());
     }
 
     /**

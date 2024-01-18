@@ -1,10 +1,11 @@
-package com.winter.init.interceptor;
+package com.winter.init.config.interceptor;
 
 import cn.hutool.core.exceptions.ValidateException;
 import cn.hutool.jwt.JWTUtil;
 import cn.hutool.jwt.JWTValidator;
 import com.winter.init.config.security.RequestContext;
 import com.winter.init.config.security.SecurityConfiguration;
+import com.winter.init.model.entity.LoginUser;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -39,8 +40,8 @@ public class TokenHandlerInterceptor implements HandlerInterceptor {
         }
         JWTValidator.of(token).validateDate();
 
-        Map<String, Object> map = JWTUtil.parseToken(token).getPayloads().toBean(Map.class);
-        RequestContext.setRequestData(map);
+        LoginUser loginUser = JWTUtil.parseToken(token).getPayloads().toBean(LoginUser.class);
+        RequestContext.setRequestData(loginUser);
         return true;
     }
 

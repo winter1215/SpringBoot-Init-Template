@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.winter.init.model.entity.LoginUser;
 import com.winter.init.model.entity.Post;
 import com.winter.init.model.entity.PostFavour;
 import com.winter.init.model.entity.User;
@@ -21,7 +22,7 @@ public interface PostFavourService extends IService<PostFavour> {
      * @param loginUser
      * @return
      */
-    int doPostFavour(long postId, User loginUser);
+    int doPostFavour(long postId, LoginUser loginUser);
 
     /**
      * 分页获取用户收藏的帖子列表

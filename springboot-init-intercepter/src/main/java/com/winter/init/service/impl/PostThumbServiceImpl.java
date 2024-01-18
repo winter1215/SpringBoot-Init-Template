@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.winter.init.common.ErrorCode;
 import com.winter.init.config.exception.BusinessException;
 import com.winter.init.mapper.PostThumbMapper;
+import com.winter.init.model.entity.LoginUser;
 import com.winter.init.model.entity.Post;
 import com.winter.init.model.entity.PostThumb;
 import com.winter.init.model.entity.User;
@@ -34,7 +35,7 @@ public class PostThumbServiceImpl extends ServiceImpl<PostThumbMapper, PostThumb
      * @return
      */
     @Override
-    public int doPostThumb(long postId, User loginUser) {
+    public int doPostThumb(long postId, LoginUser loginUser) {
         // 判断实体是否存在，根据类别获取实体
         Post post = postService.getById(postId);
         if (post == null) {

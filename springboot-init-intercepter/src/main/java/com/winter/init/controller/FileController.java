@@ -7,6 +7,7 @@ import com.winter.init.common.ResultUtils;
 import com.winter.init.constant.FileConstant;
 import com.winter.init.config.exception.BusinessException;
 import com.winter.init.model.dto.file.UploadFileRequest;
+import com.winter.init.model.entity.LoginUser;
 import com.winter.init.model.entity.User;
 import com.winter.init.model.enums.FileUploadBizEnum;
 import com.winter.init.service.UserService;
@@ -50,7 +51,7 @@ public class FileController {
         }
         
         validFile(multipartFile, fileUploadBizEnum);
-        User loginUser = userService.getLoginUser();
+        LoginUser loginUser = userService.getLoginUser();
         // 文件目录：根据业务、用户来划分
         String uuid = RandomStringUtils.randomAlphanumeric(8);
         String filename = uuid + "-" + multipartFile.getOriginalFilename();

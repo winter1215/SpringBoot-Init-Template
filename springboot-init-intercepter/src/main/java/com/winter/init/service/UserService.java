@@ -3,6 +3,7 @@ package com.winter.init.service;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.winter.init.model.dto.user.UserQueryRequest;
+import com.winter.init.model.entity.LoginUser;
 import com.winter.init.model.entity.User;
 import com.winter.init.model.vo.LoginUserVO;
 import com.winter.init.model.vo.UserVO;
@@ -42,7 +43,7 @@ public interface UserService extends IService<User> {
      * @param request
      * @return
      */
-    User getLoginUser();
+    LoginUser getLoginUser();
 
     /**
      * 是否为管理员
@@ -58,7 +59,7 @@ public interface UserService extends IService<User> {
      * @param user
      * @return
      */
-    boolean isAdmin(User user);
+    boolean isAdmin(LoginUser user);
 
     /**
      * 用户注销

@@ -1,7 +1,7 @@
 package com.winter.init.config;
 
 import com.winter.init.config.security.SecurityConfiguration;
-import com.winter.init.interceptor.TokenHandlerInterceptor;
+import com.winter.init.config.interceptor.TokenHandlerInterceptor;
 import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.context.annotation.Configuration;

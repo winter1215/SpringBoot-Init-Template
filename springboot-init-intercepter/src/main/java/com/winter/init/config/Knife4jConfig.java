@@ -19,13 +19,14 @@ public class Knife4jConfig {
     public Docket defaultApi2() {
         return new Docket(DocumentationType.SWAGGER_2)
                 .apiInfo(new ApiInfoBuilder()
-                        .title("接口文档")
+                        .title("模板接口文档")
                         .description("springboot-init")
-                        .version("1.0")
+                        .version("1.0.1")
                         .build())
                 .select()
                 // 指定 Controller 扫描包路径
-                .apis(RequestHandlerSelectors.basePackage("com.winter.flower.controller"))
+                // todo: 包名
+                .apis(RequestHandlerSelectors.basePackage("com.winter.init.controller"))
                 .paths(PathSelectors.any())
                 .build();
     }

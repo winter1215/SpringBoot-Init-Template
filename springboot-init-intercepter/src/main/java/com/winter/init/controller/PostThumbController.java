@@ -5,6 +5,7 @@ import com.winter.init.common.ErrorCode;
 import com.winter.init.common.ResultUtils;
 import com.winter.init.config.exception.BusinessException;
 import com.winter.init.model.dto.postthumb.PostThumbAddRequest;
+import com.winter.init.model.entity.LoginUser;
 import com.winter.init.model.entity.User;
 import com.winter.init.service.PostThumbService;
 import com.winter.init.service.UserService;
@@ -44,7 +45,7 @@ public class PostThumbController {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
         // 登录才能点赞
-        final User loginUser = userService.getLoginUser();
+        final LoginUser loginUser = userService.getLoginUser();
         long postId = postThumbAddRequest.getPostId();
         int result = postThumbService.doPostThumb(postId, loginUser);
         return ResultUtils.success(result);

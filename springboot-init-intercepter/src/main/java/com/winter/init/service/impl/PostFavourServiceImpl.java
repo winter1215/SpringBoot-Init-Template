@@ -8,6 +8,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.winter.init.common.ErrorCode;
 import com.winter.init.config.exception.BusinessException;
 import com.winter.init.mapper.PostFavourMapper;
+import com.winter.init.model.entity.LoginUser;
 import com.winter.init.model.entity.Post;
 import com.winter.init.model.entity.PostFavour;
 import com.winter.init.model.entity.User;
@@ -37,7 +38,7 @@ public class PostFavourServiceImpl extends ServiceImpl<PostFavourMapper, PostFav
      * @return
      */
     @Override
-    public int doPostFavour(long postId, User loginUser) {
+    public int doPostFavour(long postId, LoginUser loginUser) {
         // 判断是否存在
         Post post = postService.getById(postId);
         if (post == null) {

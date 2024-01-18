@@ -13,10 +13,7 @@ import com.winter.init.mapper.PostFavourMapper;
 import com.winter.init.mapper.PostMapper;
 import com.winter.init.mapper.PostThumbMapper;
 import com.winter.init.model.dto.post.PostQueryRequest;
-import com.winter.init.model.entity.Post;
-import com.winter.init.model.entity.PostFavour;
-import com.winter.init.model.entity.PostThumb;
-import com.winter.init.model.entity.User;
+import com.winter.init.model.entity.*;
 import com.winter.init.model.vo.PostVO;
 import com.winter.init.model.vo.UserVO;
 import com.winter.init.service.PostService;
@@ -130,7 +127,7 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post> implements Po
         UserVO userVO = userService.getUserVO(user);
         postVO.setUser(userVO);
         // 2. 已登录，获取用户点赞、收藏状态
-        User loginUser = userService.getLoginUser();
+        LoginUser loginUser = userService.getLoginUser();
         if (loginUser != null) {
             // 获取点赞
             QueryWrapper<PostThumb> postThumbQueryWrapper = new QueryWrapper<>();
@@ -162,7 +159,7 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post> implements Po
         // 2. 已登录，获取用户点赞、收藏状态
         Map<Long, Boolean> postIdHasThumbMap = new HashMap<>();
         Map<Long, Boolean> postIdHasFavourMap = new HashMap<>();
-        User loginUser = userService.getLoginUser();
+        LoginUser loginUser = userService.getLoginUser();
         if (loginUser != null) {
             Set<Long> postIdSet = postList.stream().map(Post::getId).collect(Collectors.toSet());
             loginUser = userService.getLoginUser();

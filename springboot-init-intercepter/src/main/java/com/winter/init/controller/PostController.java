@@ -14,6 +14,7 @@ import com.winter.init.model.dto.post.PostAddRequest;
 import com.winter.init.model.dto.post.PostEditRequest;
 import com.winter.init.model.dto.post.PostQueryRequest;
 import com.winter.init.model.dto.post.PostUpdateRequest;
+import com.winter.init.model.entity.LoginUser;
 import com.winter.init.model.entity.Post;
 import com.winter.init.model.entity.User;
 import com.winter.init.model.vo.PostVO;
@@ -67,7 +68,7 @@ public class PostController {
             post.setTags(GSON.toJson(tags));
         }
         postService.validPost(post, true);
-        User loginUser = userService.getLoginUser();
+        LoginUser loginUser = userService.getLoginUser();
         post.setUserId(loginUser.getId());
         post.setFavourNum(0);
         post.setThumbNum(0);
@@ -89,7 +90,7 @@ public class PostController {
         if (deleteRequest == null || deleteRequest.getId() <= 0) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
-        User user = userService.getLoginUser();
+        LoginUser user = userService.getLoginUser();
         long id = deleteRequest.getId();
         // 判断是否存在
         Post oldPost = postService.getById(id);
@@ -180,7 +181,7 @@ public class PostController {
         if (postQueryRequest == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
-        User loginUser = userService.getLoginUser();
+        LoginUser loginUser = userService.getLoginUser();
         postQueryRequest.setUserId(loginUser.getId());
         long current = postQueryRequest.getCurrent();
         long size = postQueryRequest.getPageSize();
@@ -230,7 +231,7 @@ public class PostController {
         }
         // 参数校验
         postService.validPost(post, false);
-        User loginUser = userService.getLoginUser();
+        LoginUser loginUser = userService.getLoginUser();
         long id = postEditRequest.getId();
         // 判断是否存在
         Post oldPost = postService.getById(id);
