@@ -10,9 +10,9 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.winter</groupId>
-    <artifactId>flower</artifactId>
+    <artifactId>springboot-init-intercepter</artifactId>
     <version>1.0.1</version>
-    <name>flower</name>
+    <name>springboot-init-intercepter</name>
     <properties>
         <java.version>1.8</java.version>
     </properties>

@@ -1,7 +1,7 @@
 # 公共配置文件
 spring:
   application:
-    name: flower
+    name: springboot-init-intercepter
   # 默认 dev 环境
   profiles:
     active: dev
@@ -14,7 +14,7 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://localhost:3306/my_db
     username: root
-    password: winter
+    password: 123456
   # 文件上传
   servlet:
     multipart:
