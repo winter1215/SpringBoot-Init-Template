@@ -14,7 +14,7 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://localhost:3306/my_db
     username: root
-    password: 123456
+    password: winter
   # 文件上传
   servlet:
     multipart:
@@ -22,7 +22,7 @@ spring:
       max-file-size: 10MB
 server:
   address: 0.0.0.0
-  port: 8080
+  port: 80
   servlet:
     context-path: /api
 
@@ -42,6 +42,7 @@ security:
   jwtExpired: 604800
   whitelist:
     - /user/login
+    - /user/wx/handshake
     - /user/register
     - /user/forget
     - /public/**

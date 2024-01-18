@@ -26,11 +26,7 @@ import javax.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * 用户接口
@@ -242,5 +238,15 @@ public class UserController {
         boolean result = userService.updateById(user);
         ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
         return ResultUtils.success(true);
+    }
+
+    @GetMapping("/wx/handshake")
+    public String checkWechatPublicLogin(
+            @RequestParam String signature,
+            @RequestParam String timestamp,
+            @RequestParam String nonce,
+            @RequestParam String echostr
+    ) {
+        return userService.wxHandshake(signature,timestamp,nonce,echostr);
     }
 }

@@ -39,16 +39,12 @@ public interface UserService extends IService<User> {
 
     /**
      * 获取当前登录用户
-     *
-     * @param request
      * @return
      */
     LoginUser getLoginUser();
 
     /**
      * 是否为管理员
-     *
-     * @param request
      * @return
      */
     boolean isAdmin();
@@ -100,4 +96,5 @@ public interface UserService extends IService<User> {
      */
     QueryWrapper<User> getQueryWrapper(UserQueryRequest userQueryRequest);
 
+    String wxHandshake(String signature, String timestamp, String nonce, String echostr);
 }

@@ -2,6 +2,8 @@ package com.winter.init.aop;
 
 import java.util.UUID;
 import javax.servlet.http.HttpServletRequest;
+
+import com.winter.init.config.security.RequestContext;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -31,6 +33,7 @@ public class LogInterceptor {
         stopWatch.start();
         // 获取请求路径
         RequestAttributes requestAttributes = RequestContextHolder.currentRequestAttributes();
+        String userId = RequestContext.getUserId() == null ? "Anoymous" : RequestContext.getUserId().toString();
         HttpServletRequest httpServletRequest = ((ServletRequestAttributes) requestAttributes).getRequest();
         // 生成请求唯一 id
         String requestId = UUID.randomUUID().toString();
@@ -39,7 +42,10 @@ public class LogInterceptor {
         Object[] args = point.getArgs();
         String reqParam = "[" + StringUtils.join(args, ", ") + "]";
         // 输出请求日志
-        log.info("request start，id: {}, path: {}, ip: {}, params: {}", requestId, url,
+        log.info("request start，id: {}, userId: {}, path: {}, ip: {}, params: {}",
+                requestId,
+                userId,
+                url,
                 httpServletRequest.getRemoteHost(), reqParam);
         // 执行原方法
         Object result = point.proceed();

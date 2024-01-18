@@ -2,6 +2,7 @@ package com.winter.init.service.impl;
 
 import static com.winter.init.constant.UserConstant.USER_LOGIN_STATE;
 
+import cn.hutool.crypto.SecureUtil;
 import cn.hutool.jwt.JWTUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
@@ -22,10 +23,7 @@ import com.winter.init.service.UserService;
 import com.winter.init.utils.SqlUtils;
 
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -213,5 +211,23 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         queryWrapper.orderBy(SqlUtils.validSortField(sortField), sortOrder.equals(CommonConstant.SORT_ORDER_ASC),
                 sortField);
         return queryWrapper;
+    }
+
+    @Override
+    public String wxHandshake(String signature, String timestamp, String nonce, String echostr) {
+        log.debug("[wechat handshake] signature:{}", signature);
+        log.debug("[wechat handshake] timestamp:{}", timestamp);
+        log.debug("[wechat handshake] nonce:{}", nonce);
+        log.debug("[wechat handshake] echostr:{}", echostr);
+        String[] arr = new String[]{"winter1215", timestamp, nonce};
+        // 将token、timestamp、nonce三个参数进行字典序排序
+        Arrays.sort(arr);
+        // 将三个参数字符串拼接成一个字符串进行sha1加密
+        String tmpStr = SecureUtil.sha1(arr[0] + arr[1] + arr[2]);
+        // 将sha1加密后的字符串可与signature对比，标识该请求来源于微信
+        if (tmpStr.equals(signature.toUpperCase())) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "微信签名被篡改，验证不通过");
+        }
+        return echostr;
     }
 }
