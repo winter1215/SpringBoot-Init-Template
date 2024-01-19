@@ -258,7 +258,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "不支持的消息类型");
         }
         // 验证码
-        log.info("[wechat onMessageSend] 微信公众号登录用户:{}={}", verifycode, openId);
+        log.info("[wechat onMessageSend] 微信公众号登录用户:{} = {}", verifycode, openId);
         loginCodeCache.put(verifycode, openId);
         return "success";
     }
@@ -283,8 +283,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         }
         String mpOpenId = loginCodeCache.get(varifycode, false);
         if (StringUtils.isBlank(mpOpenId)) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR, "未输入验证码");
+            throw new BusinessException(ErrorCode.OPERATION_ERROR, "未输入验证码");
         }
+        loginCodeCache.remove(ticket);
+        loginCodeCache.remove(varifycode);
         User user = this.getOne(Wrappers.<User>lambdaQuery().eq(User::getMpOpenId, mpOpenId));
         // 未注册则创建用户
         if (user == null) {
