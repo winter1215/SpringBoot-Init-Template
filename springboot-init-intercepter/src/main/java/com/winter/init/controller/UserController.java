@@ -19,6 +19,7 @@ import com.winter.init.model.entity.LoginUser;
 import com.winter.init.model.entity.User;
 import com.winter.init.model.vo.LoginUserVO;
 import com.winter.init.model.vo.UserVO;
+import com.winter.init.model.vo.WxLoginInfoVo;
 import com.winter.init.service.UserService;
 import java.util.List;
 import javax.annotation.Resource;
@@ -195,12 +196,9 @@ public class UserController {
      * 分页获取用户封装列表
      *
      * @param userQueryRequest
-     * @param request
-     * @return
      */
     @PostMapping("/list/page/vo")
-    public BaseResponse<Page<UserVO>> listUserVOByPage(@RequestBody UserQueryRequest userQueryRequest,
-            HttpServletRequest request) {
+    public BaseResponse<Page<UserVO>> listUserVOByPage(@RequestBody UserQueryRequest userQueryRequest) {
         if (userQueryRequest == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
@@ -216,18 +214,13 @@ public class UserController {
         return ResultUtils.success(userVOPage);
     }
 
-    // endregion
-
     /**
      * 更新个人信息
      *
      * @param userUpdateMyRequest
-     * @param request
-     * @return
      */
     @PostMapping("/update/my")
-    public BaseResponse<Boolean> updateMyUser(@RequestBody UserUpdateMyRequest userUpdateMyRequest,
-            HttpServletRequest request) {
+    public BaseResponse<Boolean> updateMyUser(@RequestBody UserUpdateMyRequest userUpdateMyRequest) {
         if (userUpdateMyRequest == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
@@ -240,6 +233,9 @@ public class UserController {
         return ResultUtils.success(true);
     }
 
+    /**
+    * 公众号验证 server
+    */
     @GetMapping("/wx/handshake")
     public String checkWechatPublicLogin(
             @RequestParam String signature,
@@ -248,5 +244,23 @@ public class UserController {
             @RequestParam String echostr
     ) {
         return userService.wxHandshake(signature,timestamp,nonce,echostr);
+    }
+
+    /**
+    * 接收公众号的消息回调
+    */
+    @PostMapping("/wx/handshake")
+    public String wechatPublicLogin(@RequestBody String body) {
+        return userService.onMessageSend(body);
+    }
+
+    @GetMapping("/wx/loginInfo")
+    public BaseResponse<WxLoginInfoVo> getWxLoginInfo() {
+        return ResultUtils.success(userService.getWxLoginInfo());
+    }
+
+    @GetMapping("/wx/checkLogin/{ticket}")
+    public BaseResponse<LoginUserVO> checkWxLogin(@PathVariable String ticket) {
+        return ResultUtils.success(userService.checkWxLogin(ticket));
     }
 }

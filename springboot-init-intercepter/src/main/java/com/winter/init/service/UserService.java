@@ -7,6 +7,8 @@ import com.winter.init.model.entity.LoginUser;
 import com.winter.init.model.entity.User;
 import com.winter.init.model.vo.LoginUserVO;
 import com.winter.init.model.vo.UserVO;
+import com.winter.init.model.vo.WxLoginInfoVo;
+
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 
@@ -97,4 +99,10 @@ public interface UserService extends IService<User> {
     QueryWrapper<User> getQueryWrapper(UserQueryRequest userQueryRequest);
 
     String wxHandshake(String signature, String timestamp, String nonce, String echostr);
+
+    String onMessageSend(String xml);
+
+    WxLoginInfoVo getWxLoginInfo();
+
+    LoginUserVO checkWxLogin(String ticket);
 }

@@ -2,10 +2,17 @@ package com.winter.init.service.impl;
 
 import static com.winter.init.constant.UserConstant.USER_LOGIN_STATE;
 
+import cn.hutool.cache.CacheUtil;
+import cn.hutool.cache.impl.TimedCache;
+import cn.hutool.core.lang.UUID;
+import cn.hutool.core.util.RandomUtil;
+import cn.hutool.core.util.XmlUtil;
 import cn.hutool.crypto.SecureUtil;
+import cn.hutool.json.JSONObject;
 import cn.hutool.jwt.JWTUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.winter.init.common.ErrorCode;
 import com.winter.init.config.security.RequestContext;
@@ -19,10 +26,11 @@ import com.winter.init.model.entity.User;
 import com.winter.init.model.enums.UserRoleEnum;
 import com.winter.init.model.vo.LoginUserVO;
 import com.winter.init.model.vo.UserVO;
+import com.winter.init.model.vo.WxLoginInfoVo;
 import com.winter.init.service.UserService;
 import com.winter.init.utils.SqlUtils;
-
 import java.nio.charset.StandardCharsets;
+import java.time.temporal.ValueRange;
 import java.util.*;
 import java.util.stream.Collectors;
 import javax.annotation.Resource;
@@ -43,11 +51,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     @Resource
     private SecurityConfiguration securityConfiguration;
+    private static final TimedCache<String, String> loginCodeCache = CacheUtil.newTimedCache(1000 * 60 * 5);
 
     /**
      * 盐值，混淆密码
      */
-    private static final String SALT = "yupi";
+    private static final String SALT = "winter";
 
     @Override
     public long userRegister(String userAccount, String userPassword, String checkPassword) {
@@ -229,5 +238,60 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "微信签名被篡改，验证不通过");
         }
         return echostr;
+    }
+
+    @Override
+    public String onMessageSend(String xml) {
+        // todo: 目前为明文模式, 不需要解密参数
+//        JSONObject body = XmlUtil.xmlToBean(XmlUtil.parseXml(xml).getDocumentElement(), JSONObject.class);
+//        String encrypt = body.getStr("Encrypt");
+//        String xmlContent = WeChatTool.decrypt(encrypt, config.getWxEncodingAESKey());
+        JSONObject body = XmlUtil.xmlToBean(XmlUtil.parseXml(xml).getDocumentElement(), JSONObject.class);
+        // 发送消息用户唯一标识
+        String openId = body.getStr("FromUserName");
+        // 消息类型
+        String msgType = body.getStr("MsgType");
+        // 消息内容(验证码
+        String verifycode = body.getStr("Content");
+        // 文本消息
+        if (!"text".equals(msgType)) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "不支持的消息类型");
+        }
+        // 验证码
+        log.info("[wechat onMessageSend] 微信公众号登录用户:{}={}", verifycode, openId);
+        loginCodeCache.put(verifycode, openId);
+        return "success";
+    }
+
+    @Override
+    public WxLoginInfoVo getWxLoginInfo() {
+        WxLoginInfoVo loginInfoVo = WxLoginInfoVo.builder()
+                .url("static/img/wechatLogin.png")
+                .ticket(UUID.fastUUID().toString())
+                .verifyCode(RandomUtil.randomNumbers(4))
+                .build();
+        // 存储票据和验证码
+        loginCodeCache.put(loginInfoVo.getTicket(), loginInfoVo.getVerifyCode());
+        return loginInfoVo;
+    }
+
+    @Override
+    public LoginUserVO checkWxLogin(String ticket) {
+        String varifycode = loginCodeCache.get(ticket, false);
+        if (StringUtils.isBlank(varifycode)) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "验证码已过期");
+        }
+        String mpOpenId = loginCodeCache.get(varifycode, false);
+        if (StringUtils.isBlank(mpOpenId)) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "未输入验证码");
+        }
+        User user = this.getOne(Wrappers.<User>lambdaQuery().eq(User::getMpOpenId, mpOpenId));
+        // 未注册则创建用户
+        if (user == null) {
+            user = new User();
+            user.setMpOpenId(mpOpenId);
+            this.save(user);
+        }
+        return this.getLoginUserVO(user);
     }
 }

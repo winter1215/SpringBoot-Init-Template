@@ -13,8 +13,8 @@ spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://localhost:3306/my_db
-    username: root
-    password: winter
+    username: my_db
+    password: winter1215
   # 文件上传
   servlet:
     multipart:
@@ -43,6 +43,8 @@ security:
   whitelist:
     - /user/login
     - /user/wx/handshake
+    - /user/wx/loginInfo
+    - /user/wx/checkLogin/**
     - /user/register
     - /user/forget
     - /public/**
