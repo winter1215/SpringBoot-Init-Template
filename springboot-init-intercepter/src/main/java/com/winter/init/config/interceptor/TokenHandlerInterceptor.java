@@ -32,6 +32,7 @@ public class TokenHandlerInterceptor implements HandlerInterceptor {
     @Override
     @SuppressWarnings("unchecked")
     public boolean preHandle(@NotNull HttpServletRequest request, @NotNull HttpServletResponse response, @NotNull Object handler) throws Exception {
+        log.info("path: {}", request.getRequestURI());
         String token = request.getHeader("token");
         String jwtKey = securityConfiguration.getJwtKey();
         // 检查 token 是否合法
