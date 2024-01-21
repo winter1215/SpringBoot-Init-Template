@@ -1,0 +1,231 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.tower.common.mapper.LostPostMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.tower.common.model.pojo.LostPost">
+        <id column="id" property="id" />
+        <result column="title" property="title"/>
+        <result column="user_id" property="userId"/>
+        <result column="content" property="content" />
+        <result column="tag_id" property="tagId" />
+        <result column="status" property="status" />
+        <result column="event_type" property="eventType" />
+        <result column="view_count" property="viewCount" />
+        <result column="vote_count" property="voteCount" />
+        <result column="event_time" property="eventTime" />
+        <result column="event_spot" property="eventSpot" />
+        <result column="stuff_status" property="stuffStatus" />
+        <result column="is_delete" property="isDelete" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+    </resultMap>
+    <!--帖子-用户-分类-图片 映射 postVo-->
+    <resultMap id="PostVOResultMap" type="com.tower.common.model.vo.Post.PostVo">
+        <id column="p_id" property="id" />
+        <result column="p_user_id" property="userId"/>
+        <result column="p_title" property="title"/>
+        <result column="p_content" property="briefContent" />
+        <result column="p_tag_id" property="tagId" />
+        <result column="p_status" property="status" />
+        <result column="p_view_count" property="viewCount" />
+        <result column="p_vote_count" property="voteCount" />
+        <association property="categoryVo" javaType="com.tower.common.model.vo.CategoryVo">
+            <id column="c_id" property="id" />
+            <result column="c_name" property="name" />
+        </association>
+        <association property="userVo" javaType="com.tower.common.model.vo.UserVo">
+            <id column="u_id" property="id" />
+            <result column="u_nickname" property="nickname" />
+            <result column="u_username" property="username" />
+            <result column="u_avatar" property="avatar" />
+            <result column="u_introduction" property="introduction" />
+            <result column="u_status" property="status" />
+        </association>
+        <collection property="postImgList" ofType="com.tower.common.model.pojo.PostImgs">
+            <id column="pi_id" property="id" />
+            <result column="pi_img_url" property="imgUrl" />
+            <result column="pi_post_id" property="postId" />
+        </collection>
+    </resultMap>
+
+    <!-- 失物帖子-分类-用户 结果集映射 -->
+    <resultMap id="LostPostResultMap" type="com.tower.common.model.pojo.LostPost">
+        <id column="lp_id" property="id" />
+        <result column="lp_user_id" property="userId"/>
+        <result column="lp_title" property="title"/>
+        <result column="lp_content" property="content" />
+        <result column="lp_tag_id" property="tagId" />
+        <result column="lp_status" property="status" />
+        <result column="lp_event_type" property="eventType"/>
+        <result column="lp_event_time" property="eventTime" />
+        <result column="lp_event_spot" property="eventSpot" />
+        <result column="lp_stuff_status" property="stuffStatus" />
+        <result column="lp_vote_count" property="voteCount"/>
+        <result column="lp_view_count" property="viewCount" />
+        <association property="category" javaType="com.tower.common.model.pojo.Category">
+            <id column="c_id" property="id" />
+            <result column="c_name" property="name" />
+        </association>
+        <association property="user" javaType="com.tower.common.model.pojo.User">
+            <id column="u_id" property="id" />
+            <result column="u_nickname" property="nickname" />
+            <result column="u_username" property="username" />
+            <result column="u_avatar" property="avatar" />
+            <result column="u_introduction" property="introduction" />
+            <result column="u_status" property="status" />
+        </association>
+        <collection property="postImgList" ofType="com.tower.common.model.pojo.PostImgs">
+            <id column="pi_id" property="id" />
+            <result column="pi_img_url" property="imgUrl" />
+            <result column="pi_post_id" property="postId" />
+        </collection>
+    </resultMap>
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, title, content, tag_id, status, event_type, view_count, vote_count, event_time, event_spot, stuff_status, is_delete, create_time, update_time
+    </sql>
+
+    <select id="selectLostPostPageByMulti" resultMap="LostPostResultMap">
+        SELECT
+            lp.id AS lp_id,
+            lp.user_id AS lp_user_id,
+            lp.title AS lp_title,
+            lp.content AS lp_content,
+            lp.tag_id AS lp_tag_id,
+            lp.`status` AS lp_status,
+            lp.event_type AS lp_event_type,
+            lp.event_time AS lp_event_time,
+            lp.event_spot AS lp_event_spot,
+            lp.stuff_status AS lp_stuff_status,
+            lp.vote_count AS lp_vote_count,
+            lp.view_count AS lp_view_count,
+            c.id AS c_id,
+            c.`name` AS c_name,
+            u.id AS u_id,
+            u.nickname AS u_nickname,
+            u.username AS u_username,
+            u.avatar AS u_avatar,
+            u.introduction AS u_introduction,
+            u.`status` AS u_status,
+            pi.id AS pi_id,
+            pi.img_url AS pi_img_url,
+            pi.post_id AS pi_post_id
+        FROM
+            lost_post lp
+                JOIN category c ON lp.tag_id = c.id
+                JOIN `user` u ON lp.user_id = u.id
+                <if test="userStatus != null">
+                    AND u.`status` != #{userStatus}
+                </if>
+                LEFT JOIN post_imgs pi ON pi.post_id = lp.id
+                AND pi.module = 2
+                AND pi.is_delete = 0
+        WHERE
+            lp.is_delete = 0
+        <if test="type != null">
+            AND lp.event_type = #{type}
+        </if>
+        <if test="postStatus != null">
+            AND lp.`status` != #{postStatus}
+        </if>
+        <if test="stuffStatus != null">
+            AND lp.stuff_status = #{stuffStatus}
+        </if>
+        <if test="categoryId != null">
+            AND lp.tag_id = #{categoryId}
+        </if>
+        <if test="titleKeyword != null and titleKeyword != ''">
+            AND lp.title LIKE concat('%',#{titleKeyword},'%')
+        </if>
+    </select>
+    <select id="selectPostById" resultMap="LostPostResultMap">
+        SELECT
+        lp.id AS lp_id,
+        lp.user_id AS lp_user_id,
+        lp.title AS lp_title,
+        lp.content AS lp_content,
+        lp.tag_id AS lp_tag_id,
+        lp.`status` AS lp_status,
+        lp.event_type AS lp_event_type,
+        lp.event_time AS lp_event_time,
+        lp.event_spot AS lp_event_spot,
+        lp.stuff_status AS lp_stuff_status,
+        lp.vote_count AS lp_vote_count,
+        lp.view_count AS lp_view_count,
+        c.id AS c_id,
+        c.`name` AS c_name,
+        u.id AS u_id,
+        u.nickname AS u_nickname,
+        u.username AS u_username,
+        u.avatar AS u_avatar,
+        u.introduction AS u_introduction,
+        u.`status` AS u_status,
+        pi.id AS pi_id,
+        pi.img_url AS pi_img_url,
+        pi.post_id AS pi_post_id
+        FROM
+        lost_post lp
+        JOIN category c ON lp.tag_id = c.id
+        JOIN `user` u ON lp.user_id = u.id AND u.is_delete = 0
+        <if test="userStatus != null">
+            AND u.`status` != #{userStatus}
+        </if>
+        LEFT JOIN post_imgs pi ON pi.post_id = lp.id
+        AND pi.module = 2
+        AND pi.is_delete = 0
+        WHERE
+        lp.status != 4 AND
+        lp.id = #{id}
+    </select>
+    <!-- 获取文章浏览量 -->
+    <select id="selectViewCount" resultType="int">
+        SELECT view_count FROM lost_post WHERE id = #{postId}
+    </select>
+
+    <!--  获取 postVo 列表  -->
+    <select id="getPostVoByPostIds" resultMap="PostVOResultMap">
+        SELECT
+        p.id AS p_id,
+        p.user_id AS p_user_id,
+        p.title AS p_title,
+        left(p.content, 100) AS p_content,
+        p.tag_id AS p_tag_id,
+        p.`status` AS p_status,
+        p.view_count AS p_view_count,
+        p.vote_count AS p_vote_count,
+        c.id AS c_id,
+        c.`name` AS c_name,
+        u.id AS u_id,
+        u.nickname AS u_nickname,
+        u.username AS u_username,
+        u.avatar AS u_avatar,
+        u.introduction AS u_introduction,
+        u.`status` AS u_status,
+        pi.id AS pi_id,
+        pi.img_url AS pi_img_url,
+        pi.post_id AS pi_post_id
+        FROM
+        lost_post p
+        LEFT JOIN category c ON p.tag_id = c.id AND c.is_delete = 0
+        LEFT JOIN `user` u ON p.user_id = u.id AND u.is_delete = 0
+        LEFT JOIN post_imgs pi ON pi.post_id = p.id AND pi.is_delete = 0
+        WHERE p.id in
+        <foreach collection="list" item="item" open="(" close=")" separator=",">
+            #{item}
+        </foreach>
+    </select>
+    <!-- 批量更新文章浏览量 -->
+    <update id="updateViewCountBatch">
+        update lost_post
+        set view_count = case
+        <foreach collection="list" item="post" separator=" ">
+            when id = #{post.id} then #{post.viewCount}
+        </foreach>
+        end
+        where id in
+        <foreach collection="list" item="post" open="(" close=")" separator=",">
+            #{post.id}
+        </foreach>
+    </update>
+</mapper>

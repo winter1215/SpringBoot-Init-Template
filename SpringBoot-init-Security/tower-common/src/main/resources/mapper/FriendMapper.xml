@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.tower.common.mapper.FriendMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.tower.common.model.pojo.Friend">
+        <id column="id" property="id" />
+        <result column="user_id" property="userId" />
+        <result column="friend_id" property="friendId" />
+        <result column="remark" property="remark" />
+        <result column="create_time" property="createTime" />
+        <result column="is_delete" property="isDelete" />
+    </resultMap>
+
+    <!--  映射为 List<FriendsVo>  -->
+    <resultMap id="FriendVoListMap" type="com.tower.common.model.vo.FriendVo">
+        <id column="id" property="id"/>
+        <result column="remark" property="remark" />
+        <association property="userVo" javaType="com.tower.common.model.vo.UserVo">
+            <id column="u_id" property="id" />
+            <result column="u_nickname" property="nickname" />
+            <result column="u_username" property="username" />
+            <result column="u_avatar" property="avatar" />
+            <result column="u_gender" property="gender" />
+            <result column="u_introduction" property="introduction" />
+            <result column="u_status" property="status" />
+        </association>
+
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, user_id, friend_id, remark, create_time, is_delete
+    </sql>
+
+
+    <select id="listMyFriends" resultMap="FriendVoListMap">
+        select
+            f.id AS id,
+            f.remark AS remark,
+            u.id           AS u_id,
+            u.nickname     AS u_nickname,
+            u.username     AS u_username,
+            u.gender     AS u_gender,
+            u.avatar       AS u_avatar,
+            u.introduction AS u_introduction,
+            u.`status`     AS u_status
+        from `user` u join friend f on u.id = f.friend_id
+        where f.user_id = #{loginUserId} and f.is_delete = 0
+    </select>
+
+</mapper>

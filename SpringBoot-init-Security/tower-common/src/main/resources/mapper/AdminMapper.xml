@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.tower.common.mapper.AdminMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.tower.common.model.pojo.Admin">
+        <id column="id" property="id" />
+        <result column="nickname" property="nickname" />
+        <result column="username" property="username" />
+        <result column="password" property="password" />
+        <result column="enable" property="enable" />
+        <result column="avatar" property="avatar" />
+        <result column="real_name" property="realName" />
+        <result column="student_no" property="studentNo" />
+        <result column="gender" property="gender" />
+        <result column="mail" property="mail" />
+        <result column="is_delete" property="isDelete" />
+        <result column="create__time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, nickname, username, password, enable, avatar, real_name, student_no, gender, mail, is_delete, create__time, update_time
+    </sql>
+
+    <select id="selectAdminByUsername" resultMap="BaseResultMap">
+        SELECT
+            id,
+            nickname,
+            username,
+            `password`,
+            `enable`,
+            avatar,
+            real_name,
+            student_no,
+            gender,
+            mail,
+            is_delete,
+            create__time,
+            update_time
+        FROM
+            admin
+        WHERE
+            username = #{username}
+          AND is_delete = 0
+    </select>
+</mapper>

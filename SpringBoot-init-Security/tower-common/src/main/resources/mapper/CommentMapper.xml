@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.tower.common.mapper.CommentMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.tower.common.model.pojo.Comment">
+        <id column="id" property="id" />
+        <result column="post_id" property="postId" />
+        <result column="user_id" property="userId" />
+        <result column="module" property="module" />
+        <result column="parent_id" property="parentId" />
+        <result column="content" property="content" />
+        <result column="target_user_id" property="targetUserId" />
+        <result column="is_delete" property="isDelete" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+    </resultMap>
+    <!-- 二层评论结果集封装 -->
+    <resultMap id="CommentList" type="com.tower.common.model.pojo.Comment">
+        <id column="id" property="id" />
+        <result column="module" property="module" />
+        <result column="post_id" property="postId" />
+        <result column="content" property="content" />
+        <result column="create_time" property="createTime"/>
+        <association property="user" javaType="com.tower.common.model.pojo.User">
+            <id column="user_id" property="id"/>
+            <result column="nickname" property="nickname"/>
+            <result column="avatar" property="avatar"/>
+        </association>
+        <collection property="childComment" ofType="com.tower.common.model.pojo.Comment">
+            <id column="child_id" property="id" />
+            <result column="child_module" property="module" />
+            <result column="child_post_id" property="postId" />
+            <result column="child_parent_id" property="parentId" />
+            <result column="child_create_time" property="createTime"/>
+            <result column="child_target_user_id" property="targetUserId"/>
+            <result column="child_target_nickname" property="targetNickname"/>
+            <result column="child_content" property="content" />
+            <association property="user" javaType="com.tower.common.model.pojo.User">
+                <id column="child_user_id" property="id"/>
+                <result column="child_nickname" property="nickname"/>
+                <result column="child_avatar" property="avatar"/>
+            </association>
+        </collection>
+    </resultMap>
+    <!-- 子评论结果集封装 -->
+    <resultMap id="ChildCommentList" type="com.tower.common.model.pojo.Comment">
+        <id column="child_id" property="id" />
+        <result column="child_module" property="module" />
+        <result column="child_post_id" property="postId" />
+        <result column="child_parent_id" property="parentId" />
+        <result column="child_create_time" property="createTime"/>
+        <result column="child_target_user_id" property="targetUserId"/>
+        <result column="child_target_nickname" property="targetNickname"/>
+        <result column="child_content" property="content" />
+        <association property="user" javaType="com.tower.common.model.pojo.User">
+            <id column="child_user_id" property="id"/>
+            <result column="child_nickname" property="nickname"/>
+            <result column="child_avatar" property="avatar"/>
+        </association>
+    </resultMap>
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, post_id, user_id, module, parent_id, content, target_user_id, is_delete, create_time, update_time
+    </sql>
+    <select id="selectCommentListByPage" resultMap="CommentList">
+        SELECT
+            c1.id,
+            c1.module,
+            c1.post_id,
+            c1.content,
+            c1.create_time,
+            c1.user_id,
+            c1.nickname,
+            c1.avatar,
+            c2.id AS child_id,
+            c2.module AS child_module,
+            c2.post_id AS child_post_id,
+            c2.parent_id AS child_parent_id,
+            c2.create_time AS child_create_time,
+            c2.target_user_id as child_target_user_id,
+            c2.target_nicknamme as child_target_nickname,
+            c2.content AS child_content,
+            c2.user_id AS child_user_id,
+            c2.nickname AS child_nickname,
+            c2.avatar AS child_avatar
+        FROM
+            (
+                SELECT c.id,c.module,c.post_id,c.content,c.create_time,c.user_id,u.nickname,u.avatar
+                FROM `comment` c, `user` u
+                WHERE post_id = #{postId} AND c.module = #{moduleId} AND parent_id = -1 AND c.user_id = u.id LIMIT #{start},#{size}
+            ) as c1
+                LEFT JOIN
+            (
+                SELECT c.id,c.module,c.post_id,c.content,c.parent_id,c.create_time,c.user_id,c.target_user_id,u2.nickname as target_nicknamme,u.nickname,u.avatar
+                FROM `comment` c, `user` u ,`user` u2
+                WHERE post_id = #{postId} AND c.module = #{moduleId} AND parent_id != -1 AND c.user_id = u.id  AND c.target_user_id = u2.id LIMIT 4
+            ) as c2
+            ON
+                c1.id = c2.parent_id
+    </select>
+
+    <select id="getCommentCount" resultType="int">
+        SELECT count(*) FROM `comment` c WHERE post_id = #{postId} AND c.module = #{moduleId} AND parent_id = -1
+    </select>
+    <!-- 根据评论的id获取子评论 -->
+    <select id="selectChildCommentListByPage" resultMap="ChildCommentList">
+        SELECT
+            c.id AS child_id,
+            c.module AS child_module,
+            c.post_id AS child_post_id,
+            c.parent_id AS child_parent_id,
+            c.create_time AS child_create_time,
+            c.target_user_id AS child_target_user_id,
+            c.content AS child_content,
+            c.user_id AS child_user_id,
+            u2.nickname AS child_target_nickname,
+            u.nickname AS child_nickname,
+            u.avatar AS child_avatar
+        FROM
+            `comment` c,
+            `user` u,
+            `user` u2
+        WHERE
+            c.parent_id = #{parentId}
+          AND c.user_id = u.id
+          AND c.target_user_id = u2.id
+    </select>
+</mapper>

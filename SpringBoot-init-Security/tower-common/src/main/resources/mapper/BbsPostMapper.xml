@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.tower.common.mapper.BbsPostMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.tower.common.model.pojo.BbsPost">
+        <id column="id" property="id" />
+        <result column="title" property="title"/>
+        <result column="content" property="content" />
+        <result column="tag_id" property="tagId" />
+        <result column="status" property="status" />
+        <result column="view_count" property="viewCount" />
+        <result column="vote_count" property="voteCount" />
+        <result column="is_delete" property="isDelete" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+    </resultMap>
+
+    <!-- 校园帖子-分类-用户 结果集映射 -->
+    <resultMap id="BbsPostResultMap" type="com.tower.common.model.pojo.BbsPost">
+        <id column="bp_id" property="id" />
+        <result column="bp_user_id" property="userId"/>
+        <result column="bp_title" property="title"/>
+        <result column="bp_content" property="content" />
+        <result column="bp_tag_id" property="tagId" />
+        <result column="bp_status" property="status" />
+        <result column="bp_view_count" property="viewCount" />
+        <result column="bp_vote_count" property="voteCount" />
+        <association property="category" javaType="com.tower.common.model.pojo.Category">
+            <id column="c_id" property="id" />
+            <result column="c_name" property="name" />
+        </association>
+        <association property="user" javaType="com.tower.common.model.pojo.User">
+            <id column="u_id" property="id" />
+            <result column="u_nickname" property="nickname" />
+            <result column="u_username" property="username" />
+            <result column="u_avatar" property="avatar" />
+            <result column="u_introduction" property="introduction" />
+            <result column="u_status" property="status" />
+        </association>
+        <collection property="postImgList" ofType="com.tower.common.model.pojo.PostImgs">
+            <id column="pi_id" property="id" />
+            <result column="pi_img_url" property="imgUrl" />
+            <result column="pi_post_id" property="postId" />
+        </collection>
+    </resultMap>
+    <!--帖子-用户-分类-图片 映射 postVo-->
+    <resultMap id="BbsPostVOResultMap" type="com.tower.common.model.vo.Post.PostVo">
+        <id column="bp_id" property="id" />
+        <result column="bp_user_id" property="userId"/>
+        <result column="bp_title" property="title"/>
+        <result column="bp_content" property="briefContent" />
+        <result column="bp_tag_id" property="tagId" />
+        <result column="bp_status" property="status" />
+        <result column="bp_view_count" property="viewCount" />
+        <result column="bp_vote_count" property="voteCount" />
+        <association property="categoryVo" javaType="com.tower.common.model.vo.CategoryVo">
+            <id column="c_id" property="id" />
+            <result column="c_name" property="name" />
+        </association>
+        <association property="userVo" javaType="com.tower.common.model.vo.UserVo">
+            <id column="u_id" property="id" />
+            <result column="u_nickname" property="nickname" />
+            <result column="u_username" property="username" />
+            <result column="u_avatar" property="avatar" />
+            <result column="u_introduction" property="introduction" />
+            <result column="u_status" property="status" />
+        </association>
+        <collection property="postImgList" ofType="com.tower.common.model.pojo.PostImgs">
+            <id column="pi_id" property="id" />
+            <result column="pi_img_url" property="imgUrl" />
+            <result column="pi_post_id" property="postId" />
+        </collection>
+    </resultMap>
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, title, content, tag_id, status, view_count, vote_count, is_delete, create_time, update_time
+    </sql>
+
+    <!-- 查询一篇文章 不会查询被封禁的帖子 -->
+    <select id="selectPostById" resultMap="BbsPostResultMap">
+        SELECT
+        bp.id AS bp_id,
+        bp.user_id AS bp_user_id,
+        bp.title AS bp_title,
+        bp.content AS bp_content,
+        bp.tag_id AS bp_tag_id,
+        bp.`status` AS bp_status,
+        bp.view_count AS bp_view_count,
+        bp.vote_count AS bp_vote_count,
+        c.id AS c_id,
+        c.`name` AS c_name,
+        u.id AS u_id,
+        u.nickname AS u_nickname,
+        u.username AS u_username,
+        u.avatar AS u_avatar,
+        u.introduction AS u_introduction,
+        u.`status` AS u_status,
+        pi.id AS pi_id,
+        pi.img_url AS pi_img_url,
+        pi.post_id AS pi_post_id
+        FROM
+        bbs_post bp
+        JOIN category c ON bp.tag_id = c.id
+        JOIN `user` u ON bp.user_id = u.id AND u.is_delete = 0
+        <if test="userStatus != null">
+            AND u.`status` != #{userStatus}
+        </if>
+        LEFT JOIN post_imgs pi ON pi.post_id = bp.id AND pi.module = 0
+        WHERE
+            bp.status != 4 AND
+            bp.id = #{id}
+    </select>
+
+    <select id="selectBbsPostPageByMulti" resultMap="BbsPostResultMap">
+        SELECT
+        bp.id AS bp_id,
+        bp.user_id AS bp_user_id,
+        bp.title AS bp_title,
+        left(bp.content, 100) AS bp_content,
+        bp.tag_id AS bp_tag_id,
+        bp.`status` AS bp_status,
+        bp.view_count AS bp_view_count,
+        bp.vote_count AS bp_vote_count,
+        c.id AS c_id,
+        c.`name` AS c_name,
+        u.id AS u_id,
+        u.nickname AS u_nickname,
+        u.username AS u_username,
+        u.avatar AS u_avatar,
+        u.introduction AS u_introduction,
+        u.`status` AS u_status,
+        pi.id AS pi_id,
+        pi.img_url AS pi_img_url,
+        pi.post_id AS pi_post_id
+        FROM
+        bbs_post bp
+        JOIN category c ON bp.tag_id = c.id
+        JOIN `user` u ON bp.user_id = u.id
+        <if test="userStatus != null">
+            AND u.`status` != #{userStatus}
+        </if>
+        LEFT JOIN post_imgs pi ON pi.post_id = bp.id
+        AND pi.is_delete = 0
+        WHERE
+        bp.is_delete = 0
+        <if test="postStatus != null">
+            AND bp.`status` != #{postStatus}
+        </if>
+        <if test="categoryId != null">
+            AND bp.tag_id = #{categoryId}
+        </if>
+        <if test="titleKeyword != null and titleKeyword != ''">
+            AND bp.title LIKE concat('%',#{titleKeyword},'%')
+        </if>
+    </select>
+    <!-- 获取文章浏览量 -->
+    <select id="selectViewCount" resultType="long">
+        SELECT view_count FROM bbs_post WHERE id = #{postId}
+    </select>
+
+    <!--  获取 postVo 列表  -->
+    <select id="getPostVoByPostIds" resultMap="BbsPostVOResultMap">
+        SELECT
+            bp.id AS bp_id,
+            bp.user_id AS bp_user_id,
+            bp.title AS bp_title,
+            left(bp.content, 100) AS bp_content,
+            bp.tag_id AS bp_tag_id,
+            bp.`status` AS bp_status,
+            bp.view_count AS bp_view_count,
+            bp.vote_count AS bp_vote_count,
+            c.id AS c_id,
+            c.`name` AS c_name,
+            u.id AS u_id,
+            u.nickname AS u_nickname,
+            u.username AS u_username,
+            u.avatar AS u_avatar,
+            u.introduction AS u_introduction,
+            u.`status` AS u_status,
+            pi.id AS pi_id,
+            pi.img_url AS pi_img_url,
+            pi.post_id AS pi_post_id
+        FROM
+            bbs_post bp
+            LEFT JOIN category c ON bp.tag_id = c.id AND c.is_delete = 0
+            LEFT JOIN `user` u ON bp.user_id = u.id AND u.is_delete = 0
+            LEFT JOIN post_imgs pi ON pi.post_id = bp.id AND pi.is_delete = 0
+        WHERE bp.id in
+        <foreach collection="list" item="item" open="(" close=")" separator=",">
+            #{item}
+        </foreach>
+    </select>
+    <!-- 批量更新文章浏览量 -->
+    <update id="updateViewCountBatch">
+        update bbs_post
+        set view_count = case
+        <foreach collection="list" item="post" separator=" ">
+            when id = #{post.id} then #{post.viewCount}
+        </foreach>
+        end
+        where id in
+        <foreach collection="list" item="post" open="(" close=")" separator=",">
+            #{post.id}
+        </foreach>
+    </update>
+</mapper>
