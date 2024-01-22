@@ -149,7 +149,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     /**
      * 用户注销
-     *
      * @param request
      */
     @Override
@@ -283,7 +282,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         }
         String mpOpenId = loginCodeCache.get(varifycode, false);
         if (StringUtils.isBlank(mpOpenId)) {
-            throw new BusinessException(ErrorCode.OPERATION_ERROR, "未输入验证码");
+            return null;
         }
         loginCodeCache.remove(ticket);
         loginCodeCache.remove(varifycode);
