@@ -77,6 +77,13 @@ const Login: React.FC = () => {
   });
 
   useEffect(() => {
+    // 如果已经登录，跳转到首页(发送请求到后端验证 token 是否有效)
+    if (localStorage.getItem('token')) {
+      history.push('/');
+    }
+  }, []);
+
+  useEffect(() => {
     if (type === 'wechat') {
       initWxQr();
     }
