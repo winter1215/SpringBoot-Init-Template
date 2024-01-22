@@ -1,5 +1,10 @@
 import Footer from '@/components/Footer';
-import { getWxLoginInfoUsingGet, userLoginUsingPost } from '@/services/backend/userController';
+import { BACKEND_HOST } from '@/constant';
+import {
+  checkWxLoginUsingGet,
+  getWxLoginInfoUsingGet,
+  userLoginUsingPost,
+} from '@/services/backend/userController';
 import {
   AlipayCircleOutlined,
   LockOutlined,
@@ -11,9 +16,8 @@ import { LoginForm, ProFormCheckbox, ProFormText } from '@ant-design/pro-compone
 import { useEmotionCss } from '@ant-design/use-emotion-css';
 import { Helmet, history } from '@umijs/max';
 import { Alert, Card, message, Spin, Tabs } from 'antd';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import Settings from '../../../../config/defaultSettings';
-import { set } from 'lodash';
 
 const ActionIcons = () => {
   const langClassName = useEmotionCss(({ token }) => {
@@ -57,15 +61,8 @@ const Login: React.FC = () => {
   const [wxLoading, setWxLoading] = useState<boolean>(false);
   const [type, setType] = useState<string>('account');
   const [wxLoginInfo, setWxLoginInfo] = useState<API.WxLoginInfoVo>();
-
-  useEffect(() => {
-    if (type === 'wechat') {
-      // 获取微信二维码信息
-      initWxQr();
-      // 设置定时器(useRef)
-    }
-    // 关闭定时器
-  }, [type]);
+  // 用 ref 来保存定时器
+  const intervalId = useRef<number>();
 
   const containerClassName = useEmotionCss(() => {
     return {
@@ -79,35 +76,63 @@ const Login: React.FC = () => {
     };
   });
 
+  useEffect(() => {
+    if (type === 'wechat') {
+      initWxQr();
+    }
+
+    return () => {
+      // 关闭定时器
+      clearInterval(intervalId.current);
+    };
+  }, [type]);
+
   // 初始化微信二维码信息
   const initWxQr = async () => {
     try {
       setWxLoading(true);
       const res = await getWxLoginInfoUsingGet();
-      setWxLoginInfo(res.data)
+      setWxLoginInfo(res.data);
       setWxLoading(false);
+      // 在setWxLoginInfo的回调函数中设置定时器
+      setWxLoginInfo((prevWxLoginInfo) => {
+        intervalId.current = window.setInterval(async () => {
+          // 轮询是否输入验证码
+          const res = await checkWxLoginUsingGet({ ticket: prevWxLoginInfo?.ticket || '' });
+          if (res.data) {
+            clearInterval(intervalId.current);
+            message.success('登录成功！');
+            localStorage.setItem('token', res.data.token ?? '');
+            localStorage.setItem('userInfo', JSON.stringify(res.data));
+            history.push('/');
+          } 
+          
+        }, 1500);
+        return prevWxLoginInfo;
+      });
     } catch (error) {
-
+      message.error('获取微信二维码失败！');
     }
   };
+
 
   const handleSubmit = async (values: API.UserLoginRequest) => {
     try {
       // 登录
-      const msg = await userLoginUsingPost({
+      const res = await userLoginUsingPost({
         ...values,
       });
-      const defaultLoginSuccessMessage = '登录成功！';
-      message.success(defaultLoginSuccessMessage);
+      localStorage.setItem('token', res.data?.token ?? '');
+      localStorage.setItem('userInfo', JSON.stringify(res.data));
+      message.success('登录成功！');
       const urlParams = new URL(window.location.href).searchParams;
       history.push(urlParams.get('redirect') || '/');
       return;
     } catch (error) {
-      const defaultLoginFailureMessage = '登录失败，请重试！';
-      console.log(error);
-      message.error(defaultLoginFailureMessage);
+      message.error('登录失败，请重试！');
     }
   };
+
   return (
     <div className={containerClassName}>
       <Helmet>
@@ -159,12 +184,12 @@ const Login: React.FC = () => {
           {type === 'account' && (
             <>
               <ProFormText
-                name="username"
+                name="userAccount"
                 fieldProps={{
                   size: 'large',
                   prefix: <UserOutlined />,
                 }}
-                placeholder={'用户名: admin or user'}
+                placeholder={'请输入用户名'}
                 rules={[
                   {
                     required: true,
@@ -173,12 +198,12 @@ const Login: React.FC = () => {
                 ]}
               />
               <ProFormText.Password
-                name="password"
+                name="userPassword"
                 fieldProps={{
                   size: 'large',
                   prefix: <LockOutlined />,
                 }}
-                placeholder={'密码: ant.design'}
+                placeholder={'请输入密码'}
                 rules={[
                   {
                     required: true,
@@ -203,7 +228,17 @@ const Login: React.FC = () => {
                   }}
                 >
                   {/* 块级元素高度默认是元素的高度 */}
-                  {wxLoading ? <Spin /> : <img src="" alt="" />}
+                  {wxLoading ? (
+                    <Spin />
+                  ) : (
+                    <div>
+                      <img
+                        style={{ height: 250, width: 250 }}
+                        src={BACKEND_HOST + wxLoginInfo?.url}
+                      />
+                      <div style={{ textAlign: 'center' }}>验证码: {wxLoginInfo?.verifyCode}</div>
+                    </div>
+                  )}
                 </Card>
               </div>
             </>

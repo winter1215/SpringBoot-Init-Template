@@ -1,9 +1,9 @@
 /**
  * 本地后端地址
  */
-export const BACKEND_HOST_LOCAL = "http://localhost:8080/";
+// export const BACKEND_HOST_LOCAL = "http://localhost:8080/";
 
 /**
  * 线上后端地址
  */
-export const BACKEND_HOST_PROD = "http://flower.coldworld.top/";
+export const BACKEND_HOST = "http://flower.coldworld.top/";
