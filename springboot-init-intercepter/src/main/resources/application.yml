@@ -36,6 +36,11 @@ mybatis-plus:
       logic-delete-value: 1 # 逻辑已删除值（默认为 1）
       logic-not-delete-value: 0 # 逻辑未删除值（默认为 0）
 
+chatgpt:
+  host: https://cfwus02.opapi.win/
+  keys:
+    - sk-Gq6SuuXG245c8e67299AT3BLbKFJ47e84E8415Ca4F9eb331
+
 security:
   jwtKey: winter!@#$%^&*()_+
   # 一周

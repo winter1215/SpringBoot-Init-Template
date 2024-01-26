@@ -128,8 +128,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
      */
     @Override
     public LoginUser getLoginUser() {
-        LoginUser loginUser = RequestContext.getLoginUser();
-        return loginUser;
+        return RequestContext.getLoginUser();
     }
 
     /**
